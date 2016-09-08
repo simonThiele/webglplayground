@@ -1,0 +1,4 @@
+---
+  extends: instana
+  rules:
+    no-undef: 2
