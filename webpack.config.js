@@ -21,6 +21,9 @@ module.exports = {
       query: {
         presets: ['es2015']
       }
+    }, {
+      test: /\.glsl$/i,
+      loader: 'raw'
     }]
   },
   plugins: [
