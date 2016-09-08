@@ -36,5 +36,8 @@
     "mocha": "^2.4.5",
     "raw-loader": "^0.5.1",
     "webpack": "^1.12.12"
+  },
+  "dependencies": {
+    "gl-matrix": "^2.3.2"
   }
 }
