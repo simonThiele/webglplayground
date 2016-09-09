@@ -2,12 +2,11 @@ import {mat4} from 'gl-matrix';
 
 export default class Renderer {
 
-  constructor(gl) {
+  constructor(gl, width = 0, height = 0) {
     this.gl = gl;
 
-    this.setSize(0, 0);
+    this.setSize(width, height);
 
-    this.mvMatrix = mat4.create();
     this.pMatrix = mat4.create();
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -24,10 +23,9 @@ export default class Renderer {
   render(object) {
     const gl = this.gl;
 
+
     gl.viewport(0, 0, this.width, this.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    mat4.identity(this.mvMatrix);
 
     const program = object.material.getProgram();
     gl.bindBuffer(gl.ARRAY_BUFFER, object.geometry.vertexPositionBuffer);
@@ -38,10 +36,11 @@ export default class Renderer {
                            0,     // stride
                            0);    // offset
 
+
     // set the uniform matrices inside each vertex shader
     this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
-    this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, this.mvMatrix);
+    this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.vertexPositionBuffer.numItems);
   }
 }

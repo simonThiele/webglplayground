@@ -18,18 +18,19 @@
 
     var webgl = new webglplayground.WebGL(canvas);
 
-    const renderer = webgl.createRenderer();
-    renderer.setSize(canvas.width, canvas.height);
+    const renderer = webgl.createRenderer(canvas.width, canvas.height);
 
-    const rect = webgl.createObject3D(
-      webgl.createGeometry(),
-      webgl.createMaterial()
-    )
+    const rect = webgl.createObject3D(webgl.createGeometry(), webgl.createMaterial());
 
-    renderer.render(rect);
+    const callback = () => {
+      rect.rotateX(1);
+      rect.rotateY(1);
+      renderer.render(rect);
 
-    rect.dispose();
-    webgl.dispose();
+      requestAnimationFrame(callback);
+    }
+
+    callback();
   </script>
 </body>
 </html>

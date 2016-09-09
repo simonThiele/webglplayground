@@ -97,11 +97,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Object3D2 = _interopRequireDefault(_Object3D);
 
-	var _Geometry = __webpack_require__(15);
+	var _Geometry = __webpack_require__(16);
 
 	var _Geometry2 = _interopRequireDefault(_Geometry);
 
-	var _Material = __webpack_require__(16);
+	var _Material = __webpack_require__(17);
 
 	var _Material2 = _interopRequireDefault(_Material);
 
@@ -148,8 +148,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'createRenderer',
-	    value: function createRenderer() {
-	      return new _Renderer2.default(this.gl);
+	    value: function createRenderer(width, height) {
+	      return new _Renderer2.default(this.gl, width, height);
 	    }
 	  }, {
 	    key: 'createMaterial',
@@ -194,13 +194,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Renderer = function () {
 	  function Renderer(gl) {
+	    var width = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+	    var height = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
 	    _classCallCheck(this, Renderer);
 
 	    this.gl = gl;
 
-	    this.setSize(0, 0);
+	    this.setSize(width, height);
 
-	    this.mvMatrix = _glMatrix.mat4.create();
 	    this.pMatrix = _glMatrix.mat4.create();
 
 	    gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -223,19 +225,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	      gl.viewport(0, 0, this.width, this.height);
 	      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	      _glMatrix.mat4.identity(this.mvMatrix);
-
 	      var program = object.material.getProgram();
 	      gl.bindBuffer(gl.ARRAY_BUFFER, object.geometry.vertexPositionBuffer);
 	      gl.vertexAttribPointer(program.vertexPositionAttribute, object.geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, // normalized
 	      0, // stride
 	      0); // offset
 
+
 	      // set the uniform matrices inside each vertex shader
 	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
-	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, this.mvMatrix);
+	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.vertexPositionBuffer.numItems);
 	    }
 	  }]);
 
@@ -6772,9 +6773,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 14 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -6782,18 +6783,34 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _glMatrix = __webpack_require__(4);
+
+	var _Math = __webpack_require__(15);
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Object3D = function () {
 	  function Object3D(geometry, material) {
 	    _classCallCheck(this, Object3D);
 
+	    this.matrix = _glMatrix.mat4.create();
+
 	    this.geometry = geometry;
 	    this.material = material;
 	  }
 
 	  _createClass(Object3D, [{
-	    key: "dispose",
+	    key: 'rotateY',
+	    value: function rotateY(angle) {
+	      _glMatrix.mat4.rotateY(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
+	    }
+	  }, {
+	    key: 'rotateX',
+	    value: function rotateX(angle) {
+	      _glMatrix.mat4.rotateX(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
+	    }
+	  }, {
+	    key: 'dispose',
 	    value: function dispose() {
 	      this.geometry.dispose();
 	    }
@@ -6806,6 +6823,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 15 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var DEG_TO_RAD = exports.DEG_TO_RAD = Math.PI / 180;
+
+/***/ },
+/* 16 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6854,7 +6882,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Geometry;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6865,11 +6893,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _fragmentShader = __webpack_require__(17);
+	var _fragmentShader = __webpack_require__(18);
 
 	var _fragmentShader2 = _interopRequireDefault(_fragmentShader);
 
-	var _vertexShader = __webpack_require__(18);
+	var _vertexShader = __webpack_require__(19);
 
 	var _vertexShader2 = _interopRequireDefault(_vertexShader);
 
@@ -6944,13 +6972,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Material;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports) {
 
 	module.exports = "precision mediump float;\n\nvoid main(void) {\n  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n}\n"
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports) {
 
 	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\n\n\nvoid main(void) {\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"

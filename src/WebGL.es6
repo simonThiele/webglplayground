@@ -36,8 +36,8 @@ export default class WebGL {
     return context;
   }
 
-  createRenderer() {
-    return new Renderer(this.gl);
+  createRenderer(width, height) {
+    return new Renderer(this.gl, width, height);
   }
 
   createMaterial() {
