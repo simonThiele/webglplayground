@@ -15,7 +15,17 @@
   <script src="../build/webglplayground.js"></script>
   <script>
     var canvas = document.getElementById("canvas");
-    var renderer = new webglplayground.Renderer(canvas);
+
+    var webgl = new webglplayground.WebGL(canvas);
+
+    const renderer = webgl.createRenderer();
+    const rect = webgl.createGeometry();
+    const mat = webgl.createMaterial();
+
+    renderer.render(rect, mat);
+
+    rect.dispose();
+    webgl.dispose();
   </script>
 </body>
 </html>

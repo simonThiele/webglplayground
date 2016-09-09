@@ -1,3 +1,3 @@
-import _Renderer from './Renderer.es6';
+import _WebGL from './WebGL.es6';
 
-export const Renderer = _Renderer;
+export const WebGL = _WebGL;

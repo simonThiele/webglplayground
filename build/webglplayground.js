@@ -67,15 +67,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Renderer = undefined;
+	exports.WebGL = undefined;
 
-	var _Renderer2 = __webpack_require__(2);
+	var _WebGL2 = __webpack_require__(2);
 
-	var _Renderer3 = _interopRequireDefault(_Renderer2);
+	var _WebGL3 = _interopRequireDefault(_WebGL2);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var Renderer = exports.Renderer = _Renderer3.default;
+	var WebGL = exports.WebGL = _WebGL3.default;
 
 /***/ },
 /* 2 */
@@ -89,80 +89,134 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _WebGL = __webpack_require__(3);
+	var _Renderer = __webpack_require__(3);
 
-	var _Material = __webpack_require__(4);
+	var _Renderer2 = _interopRequireDefault(_Renderer);
 
-	var _Material2 = _interopRequireDefault(_Material);
-
-	var _Geometry = __webpack_require__(7);
+	var _Geometry = __webpack_require__(14);
 
 	var _Geometry2 = _interopRequireDefault(_Geometry);
 
-	var _glMatrix = __webpack_require__(8);
+	var _Material = __webpack_require__(15);
+
+	var _Material2 = _interopRequireDefault(_Material);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Renderer = function () {
-	  function Renderer(canvas) {
-	    _classCallCheck(this, Renderer);
+	var WebGL = function () {
+	  function WebGL(canvas) {
+	    _classCallCheck(this, WebGL);
 
-	    var e = this.initGL(canvas);
+	    this.gl = this.getWebGLCanvasContext(canvas);
 	    if (!this.gl) {
-	      console.log(e);
+	      console.log('could not create webGL context for', canvas);
 	      return;
 	    }
-	    console.log('renderer v 0.0.1');
+	    console.log('webglplayground v 0.0.1');
+	    this.gl.viewportWidth = canvas.width;
+	    this.gl.viewportHeight = canvas.height;
+	  }
+
+	  // https://www.khronos.org/webgl/wiki/FAQ
+	  // it is recommended that you check for success or failure to initialize.
+	  // if WebGL fails to initialize it is recommended you distinguish between failure
+	  // because the browser doesn't support WebGL and failure for some other reason.
+	  // if the browser does not support WebGL then the map will not be rendered.
+	  // you can determine if the browser supports WebGL by checking for the existence of WebGLRenderingContext.
+
+
+	  _createClass(WebGL, [{
+	    key: 'getWebGLCanvasContext',
+	    value: function getWebGLCanvasContext(canvas) {
+	      var names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl'];
+	      var context = null;
+	      for (var ii = 0; ii < names.length; ++ii) {
+	        try {
+	          context = canvas.getContext(names[ii]);
+	        } catch (e) {
+	          continue;
+	        }
+	        if (context) {
+	          break;
+	        }
+	      }
+	      return context;
+	    }
+	  }, {
+	    key: 'createRenderer',
+	    value: function createRenderer() {
+	      return new _Renderer2.default(this.gl);
+	    }
+	  }, {
+	    key: 'createMaterial',
+	    value: function createMaterial() {
+	      return new _Material2.default(this.gl);
+	    }
+	  }, {
+	    key: 'createGeometry',
+	    value: function createGeometry() {
+	      return new _Geometry2.default(this.gl);
+	    }
+	  }, {
+	    key: 'dispose',
+	    value: function dispose() {}
+	  }]);
+
+	  return WebGL;
+	}();
+
+	exports.default = WebGL;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _glMatrix = __webpack_require__(4);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Renderer = function () {
+	  function Renderer(gl) {
+	    _classCallCheck(this, Renderer);
+
+	    this.gl = gl;
+
+	    _glMatrix.mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, this.pMatrix);
 
 	    this.mvMatrix = _glMatrix.mat4.create();
 	    this.pMatrix = _glMatrix.mat4.create();
 
-	    this.material = new _Material2.default(this.gl);
-
-	    this.geometry = new _Geometry2.default(this.gl);
-
-	    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	    this.gl.enable(this.gl.DEPTH_TEST);
-	    this.draw();
-
-	    this.geometry.dispose();
+	    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	    gl.enable(gl.DEPTH_TEST);
 	  }
 
 	  _createClass(Renderer, [{
-	    key: 'initGL',
-	    value: function initGL(canvas) {
-	      try {
-	        this.gl = (0, _WebGL.getWebGLCanvasContext)(canvas);
-	        this.gl.viewportWidth = canvas.width;
-	        this.gl.viewportHeight = canvas.height;
-	      } catch (e) {
-	        return e;
-	      }
-	    }
-	  }, {
-	    key: 'setMatrixUniforms',
-	    value: function setMatrixUniforms(shaderProgram) {
-	      this.gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, this.pMatrix);
-	      this.gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, this.mvMatrix);
-	    }
-	  }, {
-	    key: 'draw',
-	    value: function draw() {
+	    key: 'render',
+	    value: function render(geometry, material) {
 	      var gl = this.gl;
 
 	      gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	      _glMatrix.mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, this.pMatrix);
 	      _glMatrix.mat4.identity(this.mvMatrix);
 
-	      var program = this.material.getProgram();
-	      gl.bindBuffer(gl.ARRAY_BUFFER, this.geometry.vertexPositionBuffer);
-	      gl.vertexAttribPointer(program.vertexPositionAttribute, this.geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	      var program = material.getProgram();
+	      gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertexPositionBuffer);
+	      gl.vertexAttribPointer(program.vertexPositionAttribute, geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-	      this.setMatrixUniforms(program);
+	      // set the uniform matrices inside each vertex shader
+	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
+	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, this.mvMatrix);
 
 	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	    }
@@ -174,190 +228,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.getWebGLCanvasContext = getWebGLCanvasContext;
-	// https://www.khronos.org/webgl/wiki/FAQ
-	// it is recommended that you check for success or failure to initialize.
-	// if WebGL fails to initialize it is recommended you distinguish between failure
-	// because the browser doesn't support WebGL and failure for some other reason.
-	// if the browser does not support WebGL then the map will not be rendered.
-	// you can determine if the browser supports WebGL by checking for the existence of WebGLRenderingContext.
-	function getWebGLCanvasContext(canvas) {
-	  var names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl'];
-	  var context = null;
-	  for (var ii = 0; ii < names.length; ++ii) {
-	    try {
-	      context = canvas.getContext(names[ii]);
-	    } catch (e) {
-	      continue;
-	    }
-	    if (context) {
-	      break;
-	    }
-	  }
-	  return context;
-	}
-
-/***/ },
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _fragmentShader = __webpack_require__(5);
-
-	var _fragmentShader2 = _interopRequireDefault(_fragmentShader);
-
-	var _vertexShader = __webpack_require__(6);
-
-	var _vertexShader2 = _interopRequireDefault(_vertexShader);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var Material = function () {
-	  function Material(gl) {
-	    _classCallCheck(this, Material);
-
-	    this.gl = gl;
-
-	    var vertexShader = this.createShader(gl.VERTEX_SHADER, _vertexShader2.default);
-	    var fragmentShader = this.createShader(gl.FRAGMENT_SHADER, _fragmentShader2.default);
-
-	    this.program = this.createProgram(vertexShader, fragmentShader);
-	  }
-
-	  _createClass(Material, [{
-	    key: 'createShader',
-	    value: function createShader(type, source) {
-	      var gl = this.gl;
-
-	      var shader = gl.createShader(type);
-
-	      gl.shaderSource(shader, source);
-	      gl.compileShader(shader);
-
-	      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-	        console.log(gl.getShaderInfoLog(shader));
-	        return null;
-	      }
-
-	      return shader;
-	    }
-	  }, {
-	    key: 'createProgram',
-	    value: function createProgram(vertexShader, fragmentShader) {
-	      var gl = this.gl;
-
-	      var shaderProgram = gl.createProgram();
-	      gl.attachShader(shaderProgram, vertexShader);
-	      gl.attachShader(shaderProgram, fragmentShader);
-	      gl.linkProgram(shaderProgram);
-
-	      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-	        console.log("Could not initialise shaders");
-	        return null;
-	      }
-
-	      gl.useProgram(shaderProgram);
-
-	      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-	      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-	      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-	      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-
-	      return shaderProgram;
-	    }
-	  }, {
-	    key: 'getProgram',
-	    value: function getProgram() {
-	      return this.program;
-	    }
-	  }]);
-
-	  return Material;
-	}();
-
-	exports.default = Material;
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	module.exports = "precision mediump float;\n\nvoid main(void) {\n  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n}\n"
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\n\n\nvoid main(void) {\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var Geometry = function () {
-	  function Geometry(gl) {
-	    _classCallCheck(this, Geometry);
-
-	    this.gl = gl;
-
-	    this.vertexPositionBuffer = this.createBuffer();
-	  }
-
-	  _createClass(Geometry, [{
-	    key: "createBuffer",
-	    value: function createBuffer() {
-	      var gl = this.gl;
-
-	      var vertexPositionBuffer = gl.createBuffer();
-	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-	      var vertices = [0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0];
-	      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-	      vertexPositionBuffer.itemSize = 3;
-	      vertexPositionBuffer.numItems = 4;
-
-	      return vertexPositionBuffer;
-	    }
-	  }, {
-	    key: "dispose",
-	    value: function dispose() {
-	      this.gl.deleteBuffer(this.vertexPositionBuffer);
-	    }
-	  }]);
-
-	  return Geometry;
-	}();
-
-	exports.default = Geometry;
-
-/***/ },
-/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -388,18 +259,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	THE SOFTWARE. */
 	// END HEADER
 
-	exports.glMatrix = __webpack_require__(9);
-	exports.mat2 = __webpack_require__(10);
-	exports.mat2d = __webpack_require__(11);
-	exports.mat3 = __webpack_require__(12);
-	exports.mat4 = __webpack_require__(13);
-	exports.quat = __webpack_require__(14);
-	exports.vec2 = __webpack_require__(17);
-	exports.vec3 = __webpack_require__(15);
-	exports.vec4 = __webpack_require__(16);
+	exports.glMatrix = __webpack_require__(5);
+	exports.mat2 = __webpack_require__(6);
+	exports.mat2d = __webpack_require__(7);
+	exports.mat3 = __webpack_require__(8);
+	exports.mat4 = __webpack_require__(9);
+	exports.quat = __webpack_require__(10);
+	exports.vec2 = __webpack_require__(13);
+	exports.vec3 = __webpack_require__(11);
+	exports.vec4 = __webpack_require__(12);
 
 /***/ },
-/* 9 */
+/* 5 */
 /***/ function(module, exports) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -475,7 +346,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -498,7 +369,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 2x2 Matrix
@@ -917,7 +788,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -940,7 +811,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 2x3 Matrix
@@ -1392,7 +1263,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -1415,7 +1286,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 3x3 Matrix
@@ -2144,7 +2015,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -2167,7 +2038,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 4x4 Matrix
@@ -4286,7 +4157,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -4309,10 +4180,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
-	var mat3 = __webpack_require__(12);
-	var vec3 = __webpack_require__(15);
-	var vec4 = __webpack_require__(16);
+	var glMatrix = __webpack_require__(5);
+	var mat3 = __webpack_require__(8);
+	var vec3 = __webpack_require__(11);
+	var vec4 = __webpack_require__(12);
 
 	/**
 	 * @class Quaternion
@@ -4892,7 +4763,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 15 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -4915,7 +4786,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 3 Dimensional Vector
@@ -5675,7 +5546,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 16 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -5698,7 +5569,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 4 Dimensional Vector
@@ -6290,7 +6161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 17 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -6313,7 +6184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(9);
+	var glMatrix = __webpack_require__(5);
 
 	/**
 	 * @class 2 Dimensional Vector
@@ -6881,6 +6752,157 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = vec2;
 
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Geometry = function () {
+	  function Geometry(gl) {
+	    _classCallCheck(this, Geometry);
+
+	    this.gl = gl;
+
+	    this.vertexPositionBuffer = this.createBuffer();
+	  }
+
+	  _createClass(Geometry, [{
+	    key: "createBuffer",
+	    value: function createBuffer() {
+	      var gl = this.gl;
+
+	      var vertexPositionBuffer = gl.createBuffer();
+	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+	      var vertices = [0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0];
+	      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	      vertexPositionBuffer.itemSize = 3;
+	      vertexPositionBuffer.numItems = 4;
+
+	      return vertexPositionBuffer;
+	    }
+	  }, {
+	    key: "dispose",
+	    value: function dispose() {
+	      this.gl.deleteBuffer(this.vertexPositionBuffer);
+	    }
+	  }]);
+
+	  return Geometry;
+	}();
+
+	exports.default = Geometry;
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _fragmentShader = __webpack_require__(16);
+
+	var _fragmentShader2 = _interopRequireDefault(_fragmentShader);
+
+	var _vertexShader = __webpack_require__(17);
+
+	var _vertexShader2 = _interopRequireDefault(_vertexShader);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Material = function () {
+	  function Material(gl) {
+	    _classCallCheck(this, Material);
+
+	    this.gl = gl;
+
+	    var vertexShader = this.createShader(gl.VERTEX_SHADER, _vertexShader2.default);
+	    var fragmentShader = this.createShader(gl.FRAGMENT_SHADER, _fragmentShader2.default);
+
+	    this.program = this.createProgram(vertexShader, fragmentShader);
+	  }
+
+	  _createClass(Material, [{
+	    key: 'createShader',
+	    value: function createShader(type, source) {
+	      var gl = this.gl;
+
+	      var shader = gl.createShader(type);
+
+	      gl.shaderSource(shader, source);
+	      gl.compileShader(shader);
+
+	      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+	        console.log(gl.getShaderInfoLog(shader));
+	        return null;
+	      }
+
+	      return shader;
+	    }
+	  }, {
+	    key: 'createProgram',
+	    value: function createProgram(vertexShader, fragmentShader) {
+	      var gl = this.gl;
+
+	      var shaderProgram = gl.createProgram();
+	      gl.attachShader(shaderProgram, vertexShader);
+	      gl.attachShader(shaderProgram, fragmentShader);
+	      gl.linkProgram(shaderProgram);
+
+	      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+	        console.log("Could not initialise shaders");
+	        return null;
+	      }
+
+	      gl.useProgram(shaderProgram);
+
+	      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+
+	      return shaderProgram;
+	    }
+	  }, {
+	    key: 'getProgram',
+	    value: function getProgram() {
+	      return this.program;
+	    }
+	  }]);
+
+	  return Material;
+	}();
+
+	exports.default = Material;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	module.exports = "precision mediump float;\n\nvoid main(void) {\n  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n}\n"
+
+/***/ },
+/* 17 */
+/***/ function(module, exports) {
+
+	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\n\n\nvoid main(void) {\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
 
 /***/ }
 /******/ ])
