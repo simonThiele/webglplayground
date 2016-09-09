@@ -23,7 +23,6 @@ export default class Renderer {
   render(object) {
     const gl = this.gl;
 
-
     gl.viewport(0, 0, this.width, this.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -35,7 +34,6 @@ export default class Renderer {
                            false, // normalized
                            0,     // stride
                            0);    // offset
-
 
     // set the uniform matrices inside each vertex shader
     this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
