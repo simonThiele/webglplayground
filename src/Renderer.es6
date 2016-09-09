@@ -21,7 +21,7 @@ export default class Renderer {
     mat4.perspective(45, width / height, 0.1, 100.0, this.pMatrix);
   }
 
-  render(geometry, material) {
+  render(object) {
     const gl = this.gl;
 
     gl.viewport(0, 0, this.width, this.height);
@@ -29,10 +29,10 @@ export default class Renderer {
 
     mat4.identity(this.mvMatrix);
 
-    const program = material.getProgram();
-    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertexPositionBuffer);
+    const program = object.material.getProgram();
+    gl.bindBuffer(gl.ARRAY_BUFFER, object.geometry.vertexPositionBuffer);
     gl.vertexAttribPointer(program.vertexPositionAttribute,
-                           geometry.vertexPositionBuffer.itemSize,
+                           object.geometry.vertexPositionBuffer.itemSize,
                            gl.FLOAT,
                            false, // normalized
                            0,     // stride

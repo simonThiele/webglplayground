@@ -93,11 +93,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 
-	var _Geometry = __webpack_require__(14);
+	var _Object3D = __webpack_require__(14);
+
+	var _Object3D2 = _interopRequireDefault(_Object3D);
+
+	var _Geometry = __webpack_require__(15);
 
 	var _Geometry2 = _interopRequireDefault(_Geometry);
 
-	var _Material = __webpack_require__(15);
+	var _Material = __webpack_require__(16);
 
 	var _Material2 = _interopRequireDefault(_Material);
 
@@ -158,6 +162,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return new _Geometry2.default(this.gl);
 	    }
 	  }, {
+	    key: 'createObject3D',
+	    value: function createObject3D(geometry, material) {
+	      return new _Object3D2.default(geometry, material);
+	    }
+	  }, {
 	    key: 'dispose',
 	    value: function dispose() {}
 	  }]);
@@ -208,7 +217,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'render',
-	    value: function render(geometry, material) {
+	    value: function render(object) {
 	      var gl = this.gl;
 
 	      gl.viewport(0, 0, this.width, this.height);
@@ -216,9 +225,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      _glMatrix.mat4.identity(this.mvMatrix);
 
-	      var program = material.getProgram();
-	      gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertexPositionBuffer);
-	      gl.vertexAttribPointer(program.vertexPositionAttribute, geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, // normalized
+	      var program = object.material.getProgram();
+	      gl.bindBuffer(gl.ARRAY_BUFFER, object.geometry.vertexPositionBuffer);
+	      gl.vertexAttribPointer(program.vertexPositionAttribute, object.geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, // normalized
 	      0, // stride
 	      0); // offset
 
@@ -6775,6 +6784,40 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var Object3D = function () {
+	  function Object3D(geometry, material) {
+	    _classCallCheck(this, Object3D);
+
+	    this.geometry = geometry;
+	    this.material = material;
+	  }
+
+	  _createClass(Object3D, [{
+	    key: "dispose",
+	    value: function dispose() {
+	      this.geometry.dispose();
+	    }
+	  }]);
+
+	  return Object3D;
+	}();
+
+	exports.default = Object3D;
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	var Geometry = function () {
 	  function Geometry(gl) {
 	    _classCallCheck(this, Geometry);
@@ -6811,7 +6854,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Geometry;
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6822,11 +6865,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _fragmentShader = __webpack_require__(16);
+	var _fragmentShader = __webpack_require__(17);
 
 	var _fragmentShader2 = _interopRequireDefault(_fragmentShader);
 
-	var _vertexShader = __webpack_require__(17);
+	var _vertexShader = __webpack_require__(18);
 
 	var _vertexShader2 = _interopRequireDefault(_vertexShader);
 
@@ -6901,13 +6944,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Material;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = "precision mediump float;\n\nvoid main(void) {\n  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n}\n"
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports) {
 
 	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\n\n\nvoid main(void) {\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"

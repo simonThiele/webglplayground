@@ -21,10 +21,12 @@
     const renderer = webgl.createRenderer();
     renderer.setSize(canvas.width, canvas.height);
 
-    const rect = webgl.createGeometry();
-    const mat = webgl.createMaterial();
+    const rect = webgl.createObject3D(
+      webgl.createGeometry(),
+      webgl.createMaterial()
+    )
 
-    renderer.render(rect, mat);
+    renderer.render(rect);
 
     rect.dispose();
     webgl.dispose();

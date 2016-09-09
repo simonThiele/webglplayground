@@ -1,4 +1,5 @@
 import Renderer from './Renderer';
+import Object3D from './Object3D';
 import Geometry from './Geometry';
 import Material from './Material';
 
@@ -45,6 +46,10 @@ export default class WebGL {
 
   createGeometry() {
     return new Geometry(this.gl);
+  }
+
+  createObject3D(geometry, material) {
+    return new Object3D(geometry, material);
   }
 
   dispose() {}
