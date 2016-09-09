@@ -27,9 +27,11 @@ export default class Renderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     const program = object.material.getProgram();
-    gl.bindBuffer(gl.ARRAY_BUFFER, object.geometry.vertexPositionBuffer);
+
+    const positionAttribute = object.geometry.attributes.position;
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionAttribute.buffer);
     gl.vertexAttribPointer(program.vertexPositionAttribute,
-                           object.geometry.vertexPositionBuffer.itemSize,
+                           positionAttribute.itemSize,
                            gl.FLOAT,
                            false, // normalized
                            0,     // stride
@@ -39,6 +41,6 @@ export default class Renderer {
     this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
     this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.vertexPositionBuffer.numItems);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, positionAttribute.numItems);
   }
 }

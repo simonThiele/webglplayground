@@ -20,7 +20,10 @@
 
     const renderer = webgl.createRenderer(canvas.width, canvas.height);
 
-    const rect = webgl.createObject3D(webgl.createGeometry(), webgl.createMaterial());
+    const rect = webgl.createObject3D(
+      webglplayground.Utils.createRect(webgl),
+      webgl.createMaterial()
+    );
 
     const callback = () => {
       rect.rotateX(1);

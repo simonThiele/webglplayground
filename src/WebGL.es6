@@ -1,3 +1,4 @@
+import Attribute from './Attribute';
 import Renderer from './Renderer';
 import Object3D from './Object3D';
 import Geometry from './Geometry';
@@ -50,6 +51,10 @@ export default class WebGL {
 
   createObject3D(geometry, material) {
     return new Object3D(geometry, material);
+  }
+
+  createAttribute(id, data, itemSize) {
+    return new Attribute(this.gl, id, data, itemSize);
   }
 
   dispose() {}

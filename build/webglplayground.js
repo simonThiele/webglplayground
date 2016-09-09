@@ -67,15 +67,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.WebGL = undefined;
+	exports.Utils = exports.WebGL = undefined;
 
 	var _WebGL2 = __webpack_require__(2);
 
 	var _WebGL3 = _interopRequireDefault(_WebGL2);
 
+	var _Utils2 = __webpack_require__(21);
+
+	var _Utils3 = _interopRequireDefault(_Utils2);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var WebGL = exports.WebGL = _WebGL3.default;
+	var Utils = exports.Utils = _Utils3.default;
 
 /***/ },
 /* 2 */
@@ -89,19 +94,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _Renderer = __webpack_require__(3);
+	var _Attribute = __webpack_require__(3);
+
+	var _Attribute2 = _interopRequireDefault(_Attribute);
+
+	var _Renderer = __webpack_require__(4);
 
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 
-	var _Object3D = __webpack_require__(14);
+	var _Object3D = __webpack_require__(15);
 
 	var _Object3D2 = _interopRequireDefault(_Object3D);
 
-	var _Geometry = __webpack_require__(16);
+	var _Geometry = __webpack_require__(17);
 
 	var _Geometry2 = _interopRequireDefault(_Geometry);
 
-	var _Material = __webpack_require__(17);
+	var _Material = __webpack_require__(18);
 
 	var _Material2 = _interopRequireDefault(_Material);
 
@@ -167,6 +176,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return new _Object3D2.default(geometry, material);
 	    }
 	  }, {
+	    key: 'createAttribute',
+	    value: function createAttribute(id, data, itemSize) {
+	      return new _Attribute2.default(this.gl, id, data, itemSize);
+	    }
+	  }, {
 	    key: 'dispose',
 	    value: function dispose() {}
 	  }]);
@@ -178,6 +192,55 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Attribute = function () {
+	  function Attribute(gl, id, data, itemSize) {
+	    _classCallCheck(this, Attribute);
+
+	    this.id = id;
+	    this.gl = gl;
+	    this.itemSize = itemSize;
+
+	    if (!(data instanceof Float32Array)) {
+	      data = new Float32Array(data);
+	    }
+	    this.numItems = data.length / itemSize;
+
+	    this.buffer = this.createBuffer(gl, data);
+	  }
+
+	  _createClass(Attribute, [{
+	    key: "createBuffer",
+	    value: function createBuffer(gl, data) {
+
+	      var vertexPositionBuffer = gl.createBuffer();
+	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+	      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+	      vertexPositionBuffer.itemSize = this.itemSize;
+	      vertexPositionBuffer.numItems = 4;
+
+	      return vertexPositionBuffer;
+	    }
+	  }]);
+
+	  return Attribute;
+	}();
+
+	exports.default = Attribute;
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -188,7 +251,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _glMatrix = __webpack_require__(4);
+	var _glMatrix = __webpack_require__(5);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -226,17 +289,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	      var program = object.material.getProgram();
-	      gl.bindBuffer(gl.ARRAY_BUFFER, object.geometry.vertexPositionBuffer);
-	      gl.vertexAttribPointer(program.vertexPositionAttribute, object.geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, // normalized
+
+	      var positionAttribute = object.geometry.attributes.position;
+	      gl.bindBuffer(gl.ARRAY_BUFFER, positionAttribute.buffer);
+	      gl.vertexAttribPointer(program.vertexPositionAttribute, positionAttribute.itemSize, gl.FLOAT, false, // normalized
 	      0, // stride
 	      0); // offset
-
 
 	      // set the uniform matrices inside each vertex shader
 	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
 	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.vertexPositionBuffer.numItems);
+	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, positionAttribute.numItems);
 	    }
 	  }]);
 
@@ -246,7 +310,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -277,18 +341,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	THE SOFTWARE. */
 	// END HEADER
 
-	exports.glMatrix = __webpack_require__(5);
-	exports.mat2 = __webpack_require__(6);
-	exports.mat2d = __webpack_require__(7);
-	exports.mat3 = __webpack_require__(8);
-	exports.mat4 = __webpack_require__(9);
-	exports.quat = __webpack_require__(10);
-	exports.vec2 = __webpack_require__(13);
-	exports.vec3 = __webpack_require__(11);
-	exports.vec4 = __webpack_require__(12);
+	exports.glMatrix = __webpack_require__(6);
+	exports.mat2 = __webpack_require__(7);
+	exports.mat2d = __webpack_require__(8);
+	exports.mat3 = __webpack_require__(9);
+	exports.mat4 = __webpack_require__(10);
+	exports.quat = __webpack_require__(11);
+	exports.vec2 = __webpack_require__(14);
+	exports.vec3 = __webpack_require__(12);
+	exports.vec4 = __webpack_require__(13);
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -364,7 +428,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -387,7 +451,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 2x2 Matrix
@@ -806,7 +870,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -829,7 +893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 2x3 Matrix
@@ -1281,7 +1345,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -1304,7 +1368,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 3x3 Matrix
@@ -2033,7 +2097,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -2056,7 +2120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 4x4 Matrix
@@ -4175,7 +4239,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -4198,10 +4262,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
-	var mat3 = __webpack_require__(8);
-	var vec3 = __webpack_require__(11);
-	var vec4 = __webpack_require__(12);
+	var glMatrix = __webpack_require__(6);
+	var mat3 = __webpack_require__(9);
+	var vec3 = __webpack_require__(12);
+	var vec4 = __webpack_require__(13);
 
 	/**
 	 * @class Quaternion
@@ -4781,7 +4845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -4804,7 +4868,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 3 Dimensional Vector
@@ -5564,7 +5628,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -5587,7 +5651,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 4 Dimensional Vector
@@ -6179,7 +6243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -6202,7 +6266,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(5);
+	var glMatrix = __webpack_require__(6);
 
 	/**
 	 * @class 2 Dimensional Vector
@@ -6772,7 +6836,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6783,9 +6847,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _glMatrix = __webpack_require__(4);
+	var _glMatrix = __webpack_require__(5);
 
-	var _Math = __webpack_require__(15);
+	var _Math = __webpack_require__(16);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6822,7 +6886,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Object3D;
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6833,7 +6897,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DEG_TO_RAD = exports.DEG_TO_RAD = Math.PI / 180;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6852,22 +6916,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.gl = gl;
 
-	    this.vertexPositionBuffer = this.createBuffer();
+	    this.attributes = {};
 	  }
 
 	  _createClass(Geometry, [{
-	    key: "createBuffer",
-	    value: function createBuffer() {
-	      var gl = this.gl;
-
-	      var vertexPositionBuffer = gl.createBuffer();
-	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-	      var vertices = [0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0];
-	      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-	      vertexPositionBuffer.itemSize = 3;
-	      vertexPositionBuffer.numItems = 4;
-
-	      return vertexPositionBuffer;
+	    key: "addAttribute",
+	    value: function addAttribute(attribute) {
+	      this.attributes[attribute.id] = attribute;
 	    }
 	  }, {
 	    key: "dispose",
@@ -6882,7 +6937,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Geometry;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6893,11 +6948,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _fragmentShader = __webpack_require__(18);
+	var _fragmentShader = __webpack_require__(19);
 
 	var _fragmentShader2 = _interopRequireDefault(_fragmentShader);
 
-	var _vertexShader = __webpack_require__(19);
+	var _vertexShader = __webpack_require__(20);
 
 	var _vertexShader2 = _interopRequireDefault(_vertexShader);
 
@@ -6972,16 +7027,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Material;
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports) {
 
 	module.exports = "precision mediump float;\n\nvoid main(void) {\n  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n}\n"
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\n\n\nvoid main(void) {\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.createRect = createRect;
+	function createRect(webGLInstance) {
+	  var geometry = webGLInstance.createGeometry();
+
+	  var data = [0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0];
+	  geometry.addAttribute(webGLInstance.createAttribute('position', data, 3));
+
+	  return geometry;
+	}
+
+	exports.default = {
+	  createRect: createRect
+	};
 
 /***/ }
 /******/ ])
