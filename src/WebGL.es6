@@ -11,8 +11,6 @@ export default class WebGL {
       return;
     }
     console.log('webglplayground v 0.0.1');
-    this.gl.viewportWidth = canvas.width;
-    this.gl.viewportHeight = canvas.height;
   }
 
   // https://www.khronos.org/webgl/wiki/FAQ

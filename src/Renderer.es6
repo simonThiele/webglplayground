@@ -5,7 +5,7 @@ export default class Renderer {
   constructor(gl) {
     this.gl = gl;
 
-    mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, this.pMatrix);
+    this.setSize(0, 0);
 
     this.mvMatrix = mat4.create();
     this.pMatrix = mat4.create();
@@ -14,10 +14,17 @@ export default class Renderer {
     gl.enable(gl.DEPTH_TEST);
   }
 
+  setSize(width, height) {
+    this.width = width;
+    this.height = height;
+
+    mat4.perspective(45, width / height, 0.1, 100.0, this.pMatrix);
+  }
+
   render(geometry, material) {
     const gl = this.gl;
 
-    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.viewport(0, 0, this.width, this.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     mat4.identity(this.mvMatrix);
@@ -27,9 +34,9 @@ export default class Renderer {
     gl.vertexAttribPointer(program.vertexPositionAttribute,
                            geometry.vertexPositionBuffer.itemSize,
                            gl.FLOAT,
-                           false,
-                           0,
-                           0);
+                           false, // normalized
+                           0,     // stride
+                           0);    // offset
 
     // set the uniform matrices inside each vertex shader
     this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);

@@ -115,8 +115,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return;
 	    }
 	    console.log('webglplayground v 0.0.1');
-	    this.gl.viewportWidth = canvas.width;
-	    this.gl.viewportHeight = canvas.height;
 	  }
 
 	  // https://www.khronos.org/webgl/wiki/FAQ
@@ -191,7 +189,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.gl = gl;
 
-	    _glMatrix.mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, this.pMatrix);
+	    this.setSize(0, 0);
 
 	    this.mvMatrix = _glMatrix.mat4.create();
 	    this.pMatrix = _glMatrix.mat4.create();
@@ -201,18 +199,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(Renderer, [{
+	    key: 'setSize',
+	    value: function setSize(width, height) {
+	      this.width = width;
+	      this.height = height;
+
+	      _glMatrix.mat4.perspective(45, width / height, 0.1, 100.0, this.pMatrix);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render(geometry, material) {
 	      var gl = this.gl;
 
-	      gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+	      gl.viewport(0, 0, this.width, this.height);
 	      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	      _glMatrix.mat4.identity(this.mvMatrix);
 
 	      var program = material.getProgram();
 	      gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertexPositionBuffer);
-	      gl.vertexAttribPointer(program.vertexPositionAttribute, geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	      gl.vertexAttribPointer(program.vertexPositionAttribute, geometry.vertexPositionBuffer.itemSize, gl.FLOAT, false, // normalized
+	      0, // stride
+	      0); // offset
 
 	      // set the uniform matrices inside each vertex shader
 	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);

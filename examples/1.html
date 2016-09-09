@@ -19,6 +19,8 @@
     var webgl = new webglplayground.WebGL(canvas);
 
     const renderer = webgl.createRenderer();
+    renderer.setSize(canvas.width, canvas.height);
+
     const rect = webgl.createGeometry();
     const mat = webgl.createMaterial();
 
