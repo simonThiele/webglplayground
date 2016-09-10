@@ -4,15 +4,17 @@ import Object3D from './Object3D';
 import Geometry from './Geometry';
 import Material from './Material';
 
+import {COULD_NOT_CREATE_WEBGL, SUCCESSFULLY_CREATE_WEBGL, log} from './Logger';
+
 export default class WebGL {
 
   constructor(canvas) {
     this.gl = this.getWebGLCanvasContext(canvas);
     if (!this.gl) {
-      console.log('could not create webGL context for', canvas);
+      log(`${COULD_NOT_CREATE_WEBGL} ${canvas}`);
       return;
     }
-    console.log('webglplayground v 0.0.1');
+    log(SUCCESSFULLY_CREATE_WEBGL);
   }
 
   // https://www.khronos.org/webgl/wiki/FAQ

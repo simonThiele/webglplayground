@@ -1,3 +1,5 @@
+import {COULD_NOT_INIT_SHADER, log} from './Logger';
+
 export default class Material {
 
   constructor(gl, vertexShaderSource, fragmentShaderSource) {
@@ -19,7 +21,7 @@ export default class Material {
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      console.log(gl.getShaderInfoLog(shader));
+      log(gl.getShaderInfoLog(shader));
       return null;
     }
 
@@ -35,14 +37,14 @@ export default class Material {
     gl.linkProgram(shaderProgram);
 
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-      console.log("Could not initialise shaders");
+      log(COULD_NOT_INIT_SHADER);
       return null;
     }
 
-    gl.useProgram(shaderProgram);
+    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, 'uPMatrix');
+    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'uMVMatrix');
 
-    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+    shaderProgram.attributes = {};
 
     return shaderProgram;
   }
@@ -51,8 +53,7 @@ export default class Material {
     const program = this.program;
     const gl = this.gl;
 
-    program[key] = gl.getAttribLocation(program, shaderProperty);
-    gl.enableVertexAttribArray(program[key]);
+    program.attributes[key] = gl.getAttribLocation(program, shaderProperty);
   }
 
   getProgram() {

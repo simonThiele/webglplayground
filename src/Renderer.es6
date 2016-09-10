@@ -1,5 +1,7 @@
 import {mat4} from 'gl-matrix';
 
+import {COULD_NOT_FIND_ATTRIBUTE, log} from './Logger';
+
 export default class Renderer {
 
   constructor(gl, width = 0, height = 0) {
@@ -18,25 +20,33 @@ export default class Renderer {
     this.height = height;
 
     mat4.perspective(45, width / height, 0.1, 100.0, this.pMatrix);
+
+    this.gl.viewport(0, 0, width, height);
+  }
+
+  beginRender() {
+    const gl = this.gl;
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
   render(object) {
     const gl = this.gl;
 
-    gl.viewport(0, 0, this.width, this.height);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    this.setMaterial(object.material);
+    this.binObjectBuffers(object);
 
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
+  }
+
+  binObjectBuffers(object) {
     const program = object.material.getProgram();
+    const geometry = object.geometry;
 
     // set the uniform matrices inside each vertex shader
     this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
     this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-    this.bindBuffers(object.geometry, program);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
-  }
-
-  bindBuffers(geometry, program) {
     const gl = this.gl;
 
     Object.keys(geometry.attributes).forEach(key => {
@@ -56,11 +66,26 @@ export default class Renderer {
     });
   }
 
-  getAttribute(program, key) {
-    const attribute = program[key];
+  getAttribute(object, key) {
+    const attribute = object.attributes[key];
     if (attribute === undefined) {
-      console.log('could not find attribute inside program for key:', key);
+      log(`${COULD_NOT_FIND_ATTRIBUTE} ${key}`);
     }
     return attribute;
+  }
+
+  setMaterial(material) {
+    const gl = this.gl;
+    const program = material.getProgram();
+
+    gl.useProgram(program);
+
+    Object.keys(program.attributes).forEach(key => {
+      const attribute = this.getAttribute(program, key);
+      if (attribute === undefined) {
+        return;
+      }
+      gl.enableVertexAttribArray(attribute);
+    });
   }
 }
