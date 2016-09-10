@@ -41,8 +41,8 @@ export default class WebGL {
     return new Renderer(this.gl, width, height);
   }
 
-  createMaterial() {
-    return new Material(this.gl);
+  createMaterial(vertexShaderSource, fragmentShaderSource) {
+    return new Material(this.gl, vertexShaderSource, fragmentShaderSource);
   }
 
   createGeometry() {
@@ -55,6 +55,10 @@ export default class WebGL {
 
   createAttribute(id, data, itemSize) {
     return new Attribute(this.gl, id, data, itemSize);
+  }
+
+  getShader(shaderFileName) {
+    return require('./shader/' + shaderFileName + '.glsl');
   }
 
   dispose() {}

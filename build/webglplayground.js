@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _WebGL3 = _interopRequireDefault(_WebGL2);
 
-	var _Utils2 = __webpack_require__(21);
+	var _Utils2 = __webpack_require__(22);
 
 	var _Utils3 = _interopRequireDefault(_Utils2);
 
@@ -162,8 +162,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'createMaterial',
-	    value: function createMaterial() {
-	      return new _Material2.default(this.gl);
+	    value: function createMaterial(vertexShaderSource, fragmentShaderSource) {
+	      return new _Material2.default(this.gl, vertexShaderSource, fragmentShaderSource);
 	    }
 	  }, {
 	    key: 'createGeometry',
@@ -179,6 +179,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'createAttribute',
 	    value: function createAttribute(id, data, itemSize) {
 	      return new _Attribute2.default(this.gl, id, data, itemSize);
+	    }
+	  }, {
+	    key: 'getShader',
+	    value: function getShader(shaderFileName) {
+	      return __webpack_require__(19)("./" + shaderFileName + '.glsl');
 	    }
 	  }, {
 	    key: 'dispose',
@@ -211,11 +216,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.id = id;
 	    this.gl = gl;
 	    this.itemSize = itemSize;
+	    this.numItems = data.length / itemSize;
 
 	    if (!(data instanceof Float32Array)) {
 	      data = new Float32Array(data);
 	    }
-	    this.numItems = data.length / itemSize;
 
 	    this.buffer = this.createBuffer(gl, data);
 	  }
@@ -223,7 +228,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(Attribute, [{
 	    key: "createBuffer",
 	    value: function createBuffer(gl, data) {
-
 	      var vertexPositionBuffer = gl.createBuffer();
 	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
 	      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
@@ -290,17 +294,41 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var program = object.material.getProgram();
 
-	      var positionAttribute = object.geometry.attributes.position;
-	      gl.bindBuffer(gl.ARRAY_BUFFER, positionAttribute.buffer);
-	      gl.vertexAttribPointer(program.vertexPositionAttribute, positionAttribute.itemSize, gl.FLOAT, false, // normalized
-	      0, // stride
-	      0); // offset
-
 	      // set the uniform matrices inside each vertex shader
 	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
 	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, positionAttribute.numItems);
+	      this.bindBuffers(object.geometry, program);
+	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
+	    }
+	  }, {
+	    key: 'bindBuffers',
+	    value: function bindBuffers(geometry, program) {
+	      var _this = this;
+
+	      var gl = this.gl;
+
+	      Object.keys(geometry.attributes).forEach(function (key) {
+	        var attribute = geometry.attributes[key];
+	        var programAttribute = _this.getAttribute(program, key);
+	        if (programAttribute === undefined) {
+	          return;
+	        }
+
+	        gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
+	        gl.vertexAttribPointer(programAttribute, attribute.itemSize, gl.FLOAT, false, // normalized
+	        0, // stride
+	        0); // offset
+	      });
+	    }
+	  }, {
+	    key: 'getAttribute',
+	    value: function getAttribute(program, key) {
+	      var attribute = program[key];
+	      if (attribute === undefined) {
+	        console.log('could not find attribute inside program for key:', key);
+	      }
+	      return attribute;
 	    }
 	  }]);
 
@@ -6938,7 +6966,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 18 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	'use strict';
 
@@ -6948,28 +6976,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _fragmentShader = __webpack_require__(19);
-
-	var _fragmentShader2 = _interopRequireDefault(_fragmentShader);
-
-	var _vertexShader = __webpack_require__(20);
-
-	var _vertexShader2 = _interopRequireDefault(_vertexShader);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Material = function () {
-	  function Material(gl) {
+	  function Material(gl, vertexShaderSource, fragmentShaderSource) {
 	    _classCallCheck(this, Material);
 
 	    this.gl = gl;
 
-	    var vertexShader = this.createShader(gl.VERTEX_SHADER, _vertexShader2.default);
-	    var fragmentShader = this.createShader(gl.FRAGMENT_SHADER, _fragmentShader2.default);
+	    var vertexShader = this.createShader(gl.VERTEX_SHADER, vertexShaderSource);
+	    var fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
 
 	    this.program = this.createProgram(vertexShader, fragmentShader);
+	    this.addAttribute('position', 'aVertexPosition');
 	  }
 
 	  _createClass(Material, [{
@@ -7006,13 +7025,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      gl.useProgram(shaderProgram);
 
-	      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-	      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
 	      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 	      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 
 	      return shaderProgram;
+	    }
+	  }, {
+	    key: 'addAttribute',
+	    value: function addAttribute(key, shaderProperty) {
+	      var program = this.program;
+	      var gl = this.gl;
+
+	      program[key] = gl.getAttribLocation(program, shaderProperty);
+	      gl.enableVertexAttribArray(program[key]);
 	    }
 	  }, {
 	    key: 'getProgram',
@@ -7028,18 +7053,40 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 19 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "precision mediump float;\n\nvoid main(void) {\n  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n}\n"
+	var map = {
+		"./coloredFragmentShader.glsl": 20,
+		"./coloredVertexShader.glsl": 21
+	};
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 19;
+
 
 /***/ },
 /* 20 */
 /***/ function(module, exports) {
 
-	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\n\n\nvoid main(void) {\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
+	module.exports = "precision mediump float;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  gl_FragColor = vec4(vVertexColor, 1.0);\n}\n"
 
 /***/ },
 /* 21 */
+/***/ function(module, exports) {
+
+	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\nattribute vec3 aVertexColor;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  vVertexColor = aVertexColor;\n\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
+
+/***/ },
+/* 22 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7048,17 +7095,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	exports.createRect = createRect;
+	exports.createColoredMaterial = createColoredMaterial;
 	function createRect(webGLInstance) {
 	  var geometry = webGLInstance.createGeometry();
 
-	  var data = [0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0];
-	  geometry.addAttribute(webGLInstance.createAttribute('position', data, 3));
+	  var positionData = [0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0];
+	  geometry.addAttribute(webGLInstance.createAttribute('position', positionData, 3));
+
+	  var colorData = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+	  geometry.addAttribute(webGLInstance.createAttribute('color', colorData, 3));
 
 	  return geometry;
 	}
 
+	function createColoredMaterial(webGLInstance) {
+	  var material = webGLInstance.createMaterial(webGLInstance.getShader('coloredVertexShader'), webGLInstance.getShader('coloredFragmentShader'));
+
+	  material.addAttribute('color', 'aVertexColor');
+
+	  return material;
+	}
+
 	exports.default = {
-	  createRect: createRect
+	  createRect: createRect,
+	  createColoredMaterial: createColoredMaterial
 	};
 
 /***/ }

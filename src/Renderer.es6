@@ -28,19 +28,39 @@ export default class Renderer {
 
     const program = object.material.getProgram();
 
-    const positionAttribute = object.geometry.attributes.position;
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionAttribute.buffer);
-    gl.vertexAttribPointer(program.vertexPositionAttribute,
-                           positionAttribute.itemSize,
-                           gl.FLOAT,
-                           false, // normalized
-                           0,     // stride
-                           0);    // offset
-
     // set the uniform matrices inside each vertex shader
     this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
     this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, positionAttribute.numItems);
+    this.bindBuffers(object.geometry, program);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
+  }
+
+  bindBuffers(geometry, program) {
+    const gl = this.gl;
+
+    Object.keys(geometry.attributes).forEach(key => {
+      const attribute = geometry.attributes[key];
+      const programAttribute = this.getAttribute(program, key);
+      if (programAttribute === undefined) {
+        return;
+      }
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
+      gl.vertexAttribPointer(programAttribute,
+                             attribute.itemSize,
+                             gl.FLOAT,
+                             false, // normalized
+                             0,     // stride
+                             0);    // offset
+    });
+  }
+
+  getAttribute(program, key) {
+    const attribute = program[key];
+    if (attribute === undefined) {
+      console.log('could not find attribute inside program for key:', key);
+    }
+    return attribute;
   }
 }

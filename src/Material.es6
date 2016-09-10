@@ -1,15 +1,13 @@
-import basicFragmentShader from './fragmentShader.glsl';
-import basicVertexShader from './vertexShader.glsl';
-
 export default class Material {
 
-  constructor(gl) {
+  constructor(gl, vertexShaderSource, fragmentShaderSource) {
     this.gl = gl;
 
-    const vertexShader = this.createShader(gl.VERTEX_SHADER, basicVertexShader);
-    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, basicFragmentShader);
+    const vertexShader = this.createShader(gl.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
 
     this.program = this.createProgram(vertexShader, fragmentShader);
+    this.addAttribute('position', 'aVertexPosition');
   }
 
   createShader(type, source) {
@@ -43,13 +41,18 @@ export default class Material {
 
     gl.useProgram(shaderProgram);
 
-    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
     shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
     shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 
     return shaderProgram;
+  }
+
+  addAttribute(key, shaderProperty) {
+    const program = this.program;
+    const gl = this.gl;
+
+    program[key] = gl.getAttribLocation(program, shaderProperty);
+    gl.enableVertexAttribArray(program[key]);
   }
 
   getProgram() {
