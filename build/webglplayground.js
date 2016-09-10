@@ -217,24 +217,32 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.id = id;
 	    this.gl = gl;
-	    this.itemSize = itemSize;
-	    this.numItems = data.length / itemSize;
 
-	    if (!(data instanceof Float32Array)) {
-	      data = new Float32Array(data);
-	    }
-
-	    this.buffer = this.createBuffer(gl, data);
+	    this.update(data, itemSize);
 	  }
 
 	  _createClass(Attribute, [{
+	    key: "update",
+	    value: function update(data) {
+	      var itemSize = arguments.length <= 1 || arguments[1] === undefined ? this.itemSize : arguments[1];
+
+	      this.itemSize = itemSize;
+	      this.numItems = data.length / itemSize;
+
+	      if (!(data instanceof Float32Array)) {
+	        data = new Float32Array(data);
+	      }
+	      this.buffer = this.createBuffer(this.gl, data);
+	    }
+	  }, {
 	    key: "createBuffer",
 	    value: function createBuffer(gl, data) {
 	      var vertexPositionBuffer = gl.createBuffer();
-	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-	      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 	      vertexPositionBuffer.itemSize = this.itemSize;
 	      vertexPositionBuffer.numItems = 4;
+
+	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+	      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
 	      return vertexPositionBuffer;
 	    }

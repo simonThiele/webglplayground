@@ -25,20 +25,9 @@
       webglplayground.Utils.createColoredMaterial(webgl)
     );
 
-    const rect2 = webgl.createObject3D(
-      webglplayground.Utils.createRect(webgl),
-      webglplayground.Utils.createColoredMaterial(webgl)
-    );
-
     const callback = () => {
       renderer.beginRender();
-
-      rect.rotateX(1);
-      rect.rotateY(1);
       renderer.render(rect);
-
-      rect2.rotateY(1);
-      renderer.render(rect2);
 
       requestAnimationFrame(callback);
     }
