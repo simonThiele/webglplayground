@@ -3,6 +3,7 @@ import Renderer from './Renderer';
 import Object3D from './Object3D';
 import Geometry from './Geometry';
 import Material from './Material';
+import Scene from './Scene';
 
 import {COULD_NOT_CREATE_WEBGL, SUCCESSFULLY_CREATE_WEBGL, log} from './Logger';
 
@@ -57,6 +58,10 @@ export default class WebGL {
 
   createAttribute(id, data, itemSize) {
     return new Attribute(this.gl, id, data, itemSize);
+  }
+
+  createScene() {
+    return new Scene();
   }
 
   getShader(shaderFileName) {

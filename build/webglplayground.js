@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _WebGL3 = _interopRequireDefault(_WebGL2);
 
-	var _Utils2 = __webpack_require__(23);
+	var _Utils2 = __webpack_require__(24);
 
 	var _Utils3 = _interopRequireDefault(_Utils2);
 
@@ -113,6 +113,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _Material = __webpack_require__(19);
 
 	var _Material2 = _interopRequireDefault(_Material);
+
+	var _Scene = __webpack_require__(20);
+
+	var _Scene2 = _interopRequireDefault(_Scene);
 
 	var _Logger = __webpack_require__(15);
 
@@ -183,9 +187,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return new _Attribute2.default(this.gl, id, data, itemSize);
 	    }
 	  }, {
+	    key: 'createScene',
+	    value: function createScene() {
+	      return new _Scene2.default();
+	    }
+	  }, {
 	    key: 'getShader',
 	    value: function getShader(shaderFileName) {
-	      return __webpack_require__(20)("./" + shaderFileName + '.glsl');
+	      return __webpack_require__(21)("./" + shaderFileName + '.glsl');
 	    }
 	  }, {
 	    key: 'dispose',
@@ -7112,11 +7121,54 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 20 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Scene = function () {
+	  function Scene() {
+	    _classCallCheck(this, Scene);
+
+	    this.sceneObjects = [];
+	  }
+
+	  _createClass(Scene, [{
+	    key: "add",
+	    value: function add(object) {
+	      this.sceneObjects.push(object);
+	    }
+	  }, {
+	    key: "render",
+	    value: function render(renderer) {
+	      renderer.beginRender();
+
+	      var objects = this.sceneObjects;
+	      for (var i = 0, length = objects.length; i < length; i++) {
+	        renderer.render(objects[i]);
+	      }
+	    }
+	  }]);
+
+	  return Scene;
+	}();
+
+	exports.default = Scene;
+
+/***/ },
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./coloredFragmentShader.glsl": 21,
-		"./coloredVertexShader.glsl": 22
+		"./coloredFragmentShader.glsl": 22,
+		"./coloredVertexShader.glsl": 23
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -7129,23 +7181,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 20;
+	webpackContext.id = 21;
 
-
-/***/ },
-/* 21 */
-/***/ function(module, exports) {
-
-	module.exports = "precision mediump float;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  gl_FragColor = vec4(vVertexColor, 1.0);\n}\n"
 
 /***/ },
 /* 22 */
 /***/ function(module, exports) {
 
-	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\nattribute vec3 aVertexColor;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  vVertexColor = aVertexColor;\n\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
+	module.exports = "precision mediump float;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  gl_FragColor = vec4(vVertexColor, 1.0);\n}\n"
 
 /***/ },
 /* 23 */
+/***/ function(module, exports) {
+
+	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\nattribute vec3 aVertexColor;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  vVertexColor = aVertexColor;\n\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
+
+/***/ },
+/* 24 */
 /***/ function(module, exports) {
 
 	'use strict';

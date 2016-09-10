@@ -18,6 +18,7 @@
 
     var webgl = new webglplayground.WebGL(canvas);
 
+    const scene = webgl.createScene();
     const renderer = webgl.createRenderer(canvas.width, canvas.height);
 
     const rect = webgl.createObject3D(
@@ -25,10 +26,10 @@
       webglplayground.Utils.createColoredMaterial(webgl)
     );
 
-    const callback = () => {
-      renderer.beginRender();
+    scene.add(rect);
 
-      renderer.render(rect);
+    const callback = () => {
+      scene.render(renderer);
 
       requestAnimationFrame(callback);
     }
