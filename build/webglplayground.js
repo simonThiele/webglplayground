@@ -6948,10 +6948,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var currentId = 0;
+
 	var Object3D = function () {
 	  function Object3D(geometry, material) {
 	    _classCallCheck(this, Object3D);
 
+	    this.id = currentId++;
 	    this.matrix = _glMatrix.mat4.create();
 
 	    this.geometry = geometry;

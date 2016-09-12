@@ -2,9 +2,12 @@ import {mat4} from 'gl-matrix';
 
 import {DEG_TO_RAD} from './Math';
 
+let currentId = 0;
+
 export default class Object3D {
 
   constructor(geometry, material) {
+    this.id = currentId++;
     this.matrix = mat4.create();
 
     this.geometry = geometry;
