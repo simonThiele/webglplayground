@@ -1,5 +1,3 @@
-import {mat4} from 'gl-matrix';
-
 import {COULD_NOT_FIND_ATTRIBUTE, log} from './Logger';
 
 export default class Renderer {
@@ -9,8 +7,6 @@ export default class Renderer {
 
     this.setSize(width, height);
 
-    this.pMatrix = mat4.create();
-
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
   }
@@ -18,8 +14,6 @@ export default class Renderer {
   setSize(width, height) {
     this.width = width;
     this.height = height;
-
-    mat4.perspective(45, width / height, 0.1, 100.0, this.pMatrix);
 
     this.gl.viewport(0, 0, width, height);
   }
@@ -30,22 +24,22 @@ export default class Renderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  render(object) {
+  render(camera, object) {
     const gl = this.gl;
 
     this.setMaterial(object.material);
-    this.binObjectBuffers(object);
+    this.binObjectBuffers(camera, object);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
   }
 
-  binObjectBuffers(object) {
+  binObjectBuffers(camera, object) {
     const program = object.material.getProgram();
     const geometry = object.geometry;
 
     // set the uniform matrices inside each vertex shader
-    this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
-    this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
+    this.gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
+    this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
 
     const gl = this.gl;
 

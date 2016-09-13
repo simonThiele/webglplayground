@@ -1,6 +1,4 @@
-import {mat4} from 'gl-matrix';
-
-import {DEG_TO_RAD} from './Math';
+import Matrix4 from './math/Matrix4';
 
 let currentId = 0;
 
@@ -8,18 +6,26 @@ export default class Object3D {
 
   constructor(geometry, material) {
     this.id = currentId++;
-    this.matrix = mat4.create();
+    this.matrix = new Matrix4();
 
     this.geometry = geometry;
     this.material = material;
   }
 
-  rotateY(angle) {
-    mat4.rotateY(this.matrix, this.matrix, angle * DEG_TO_RAD);
+  rotateX(angle) {
+    this.matrix.rotateX(angle);
   }
 
-  rotateX(angle) {
-    mat4.rotateX(this.matrix, this.matrix, angle * DEG_TO_RAD);
+  rotateY(angle) {
+    this.matrix.rotateY(angle);
+  }
+
+  rotateZ(angle) {
+    this.matrix.rotateZ(angle);
+  }
+
+  getMatrix() {
+    return this.matrix.getMatrix();
   }
 
   dispose() {

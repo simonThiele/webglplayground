@@ -6,7 +6,7 @@
         content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="google" content="notranslate">
   <title>
-    1
+    simpleRect
   </title>
 </head>
 <body>
@@ -20,6 +20,7 @@
 
     const scene = webgl.createScene();
     const renderer = webgl.createRenderer(canvas.width, canvas.height);
+    const camera = webgl.createPerspectiveCamera(canvas.width, canvas.height);
 
     const rect = webgl.createObject3D(
       webglplayground.Utils.createRect(webgl),
@@ -29,7 +30,7 @@
     scene.add(rect);
 
     const callback = () => {
-      scene.render(renderer);
+      scene.render(renderer, camera);
 
       requestAnimationFrame(callback);
     }

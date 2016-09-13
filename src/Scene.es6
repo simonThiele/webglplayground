@@ -8,12 +8,12 @@ export default class Scene {
     this.sceneObjects.push(object);
   }
 
-  render(renderer) {
+  render(renderer, camera) {
     renderer.beginRender();
 
     const objects = this.sceneObjects;
     for (let i = 0, length = objects.length; i < length; i++) {
-      renderer.render(objects[i]);
+      renderer.render(camera, objects[i]);
     }
   }
 }

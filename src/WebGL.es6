@@ -1,3 +1,4 @@
+import PerspectiveCamera from './PerspectiveCamera';
 import Attribute from './Attribute';
 import Renderer from './Renderer';
 import Object3D from './Object3D';
@@ -62,6 +63,10 @@ export default class WebGL {
 
   createScene() {
     return new Scene();
+  }
+
+  createPerspectiveCamera(width, height) {
+    return new PerspectiveCamera(width, height);
   }
 
   getShader(shaderFileName) {

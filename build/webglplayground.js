@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _WebGL3 = _interopRequireDefault(_WebGL2);
 
-	var _Utils2 = __webpack_require__(24);
+	var _Utils2 = __webpack_require__(26);
 
 	var _Utils3 = _interopRequireDefault(_Utils2);
 
@@ -94,31 +94,35 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _Attribute = __webpack_require__(3);
+	var _PerspectiveCamera = __webpack_require__(3);
+
+	var _PerspectiveCamera2 = _interopRequireDefault(_PerspectiveCamera);
+
+	var _Attribute = __webpack_require__(16);
 
 	var _Attribute2 = _interopRequireDefault(_Attribute);
 
-	var _Renderer = __webpack_require__(4);
+	var _Renderer = __webpack_require__(17);
 
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 
-	var _Object3D = __webpack_require__(16);
+	var _Object3D = __webpack_require__(19);
 
 	var _Object3D2 = _interopRequireDefault(_Object3D);
 
-	var _Geometry = __webpack_require__(18);
+	var _Geometry = __webpack_require__(20);
 
 	var _Geometry2 = _interopRequireDefault(_Geometry);
 
-	var _Material = __webpack_require__(19);
+	var _Material = __webpack_require__(21);
 
 	var _Material2 = _interopRequireDefault(_Material);
 
-	var _Scene = __webpack_require__(20);
+	var _Scene = __webpack_require__(22);
 
 	var _Scene2 = _interopRequireDefault(_Scene);
 
-	var _Logger = __webpack_require__(15);
+	var _Logger = __webpack_require__(18);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -192,9 +196,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return new _Scene2.default();
 	    }
 	  }, {
+	    key: 'createPerspectiveCamera',
+	    value: function createPerspectiveCamera(width, height) {
+	      return new _PerspectiveCamera2.default(width, height);
+	    }
+	  }, {
 	    key: 'getShader',
 	    value: function getShader(shaderFileName) {
-	      return __webpack_require__(21)("./" + shaderFileName + '.glsl');
+	      return __webpack_require__(23)("./" + shaderFileName + '.glsl');
 	    }
 	  }, {
 	    key: 'dispose',
@@ -208,9 +217,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -218,49 +227,33 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _Matrix = __webpack_require__(4);
+
+	var _Matrix2 = _interopRequireDefault(_Matrix);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Attribute = function () {
-	  function Attribute(gl, id, data, itemSize) {
-	    _classCallCheck(this, Attribute);
+	var PerspectiveCamera = function () {
+	  function PerspectiveCamera(width, height) {
+	    _classCallCheck(this, PerspectiveCamera);
 
-	    this.id = id;
-	    this.gl = gl;
-
-	    this.update(data, itemSize);
+	    this.projectionMatrix = new _Matrix2.default();
+	    (0, _Matrix.perspective)(this.projectionMatrix, width, height);
 	  }
 
-	  _createClass(Attribute, [{
-	    key: "update",
-	    value: function update(data) {
-	      var itemSize = arguments.length <= 1 || arguments[1] === undefined ? this.itemSize : arguments[1];
-
-	      this.itemSize = itemSize;
-	      this.numItems = data.length / itemSize;
-
-	      if (!(data instanceof Float32Array)) {
-	        data = new Float32Array(data);
-	      }
-	      this.buffer = this.createBuffer(this.gl, data);
-	    }
-	  }, {
-	    key: "createBuffer",
-	    value: function createBuffer(gl, data) {
-	      var vertexPositionBuffer = gl.createBuffer();
-	      vertexPositionBuffer.itemSize = this.itemSize;
-	      vertexPositionBuffer.numItems = 4;
-
-	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-	      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-
-	      return vertexPositionBuffer;
+	  _createClass(PerspectiveCamera, [{
+	    key: 'getProjectionMatrix',
+	    value: function getProjectionMatrix() {
+	      return this.projectionMatrix.getMatrix();
 	    }
 	  }]);
 
-	  return Attribute;
+	  return PerspectiveCamera;
 	}();
 
-	exports.default = Attribute;
+	exports.default = PerspectiveCamera;
 
 /***/ },
 /* 4 */
@@ -274,116 +267,50 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	exports.perspective = perspective;
+
 	var _glMatrix = __webpack_require__(5);
 
-	var _Logger = __webpack_require__(15);
+	var _Math = __webpack_require__(15);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Renderer = function () {
-	  function Renderer(gl) {
-	    var width = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
-	    var height = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+	var Matrix4 = function () {
+	  function Matrix4() {
+	    _classCallCheck(this, Matrix4);
 
-	    _classCallCheck(this, Renderer);
-
-	    this.gl = gl;
-
-	    this.setSize(width, height);
-
-	    this.pMatrix = _glMatrix.mat4.create();
-
-	    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	    gl.enable(gl.DEPTH_TEST);
+	    this.matrix = _glMatrix.mat4.create();
 	  }
 
-	  _createClass(Renderer, [{
-	    key: 'setSize',
-	    value: function setSize(width, height) {
-	      this.width = width;
-	      this.height = height;
-
-	      _glMatrix.mat4.perspective(45, width / height, 0.1, 100.0, this.pMatrix);
-
-	      this.gl.viewport(0, 0, width, height);
+	  _createClass(Matrix4, [{
+	    key: 'rotateX',
+	    value: function rotateX(angle) {
+	      _glMatrix.mat4.rotateX(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
 	    }
 	  }, {
-	    key: 'beginRender',
-	    value: function beginRender() {
-	      var gl = this.gl;
-
-	      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	    key: 'rotateY',
+	    value: function rotateY(angle) {
+	      _glMatrix.mat4.rotateY(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
 	    }
 	  }, {
-	    key: 'render',
-	    value: function render(object) {
-	      var gl = this.gl;
-
-	      this.setMaterial(object.material);
-	      this.binObjectBuffers(object);
-
-	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
+	    key: 'rotateZ',
+	    value: function rotateZ(angle) {
+	      _glMatrix.mat4.rotateZ(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
 	    }
 	  }, {
-	    key: 'binObjectBuffers',
-	    value: function binObjectBuffers(object) {
-	      var _this = this;
-
-	      var program = object.material.getProgram();
-	      var geometry = object.geometry;
-
-	      // set the uniform matrices inside each vertex shader
-	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, this.pMatrix);
-	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.matrix);
-
-	      var gl = this.gl;
-
-	      Object.keys(geometry.attributes).forEach(function (key) {
-	        var attribute = geometry.attributes[key];
-	        var programAttribute = _this.getAttribute(program, key);
-	        if (programAttribute === undefined) {
-	          return;
-	        }
-
-	        gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
-	        gl.vertexAttribPointer(programAttribute, attribute.itemSize, gl.FLOAT, false, // normalized
-	        0, // stride
-	        0); // offset
-	      });
-	    }
-	  }, {
-	    key: 'getAttribute',
-	    value: function getAttribute(object, key) {
-	      var attribute = object.attributes[key];
-	      if (attribute === undefined) {
-	        (0, _Logger.log)(_Logger.COULD_NOT_FIND_ATTRIBUTE + ' ' + key);
-	      }
-	      return attribute;
-	    }
-	  }, {
-	    key: 'setMaterial',
-	    value: function setMaterial(material) {
-	      var _this2 = this;
-
-	      var gl = this.gl;
-	      var program = material.getProgram();
-
-	      gl.useProgram(program);
-
-	      Object.keys(program.attributes).forEach(function (key) {
-	        var attribute = _this2.getAttribute(program, key);
-	        if (attribute === undefined) {
-	          return;
-	        }
-	        gl.enableVertexAttribArray(attribute);
-	      });
+	    key: 'getMatrix',
+	    value: function getMatrix() {
+	      return this.matrix;
 	    }
 	  }]);
 
-	  return Renderer;
+	  return Matrix4;
 	}();
 
-	exports.default = Renderer;
+	exports.default = Matrix4;
+	function perspective(matrix, width, height) {
+	  _glMatrix.mat4.perspective(matrix, 45, width / height, 0.1, 100.0);
+	}
 
 /***/ },
 /* 5 */
@@ -6915,6 +6842,190 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 15 */
 /***/ function(module, exports) {
 
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var DEG_TO_RAD = exports.DEG_TO_RAD = Math.PI / 180;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Attribute = function () {
+	  function Attribute(gl, id, data, itemSize) {
+	    _classCallCheck(this, Attribute);
+
+	    this.id = id;
+	    this.gl = gl;
+
+	    this.update(data, itemSize);
+	  }
+
+	  _createClass(Attribute, [{
+	    key: "update",
+	    value: function update(data) {
+	      var itemSize = arguments.length <= 1 || arguments[1] === undefined ? this.itemSize : arguments[1];
+
+	      this.itemSize = itemSize;
+	      this.numItems = data.length / itemSize;
+
+	      if (!(data instanceof Float32Array)) {
+	        data = new Float32Array(data);
+	      }
+	      this.buffer = this.createBuffer(this.gl, data);
+	    }
+	  }, {
+	    key: "createBuffer",
+	    value: function createBuffer(gl, data) {
+	      var vertexPositionBuffer = gl.createBuffer();
+	      vertexPositionBuffer.itemSize = this.itemSize;
+	      vertexPositionBuffer.numItems = 4;
+
+	      gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+	      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+	      return vertexPositionBuffer;
+	    }
+	  }]);
+
+	  return Attribute;
+	}();
+
+	exports.default = Attribute;
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Logger = __webpack_require__(18);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Renderer = function () {
+	  function Renderer(gl) {
+	    var width = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+	    var height = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
+	    _classCallCheck(this, Renderer);
+
+	    this.gl = gl;
+
+	    this.setSize(width, height);
+
+	    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	    gl.enable(gl.DEPTH_TEST);
+	  }
+
+	  _createClass(Renderer, [{
+	    key: 'setSize',
+	    value: function setSize(width, height) {
+	      this.width = width;
+	      this.height = height;
+
+	      this.gl.viewport(0, 0, width, height);
+	    }
+	  }, {
+	    key: 'beginRender',
+	    value: function beginRender() {
+	      var gl = this.gl;
+
+	      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(camera, object) {
+	      var gl = this.gl;
+
+	      this.setMaterial(object.material);
+	      this.binObjectBuffers(camera, object);
+
+	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
+	    }
+	  }, {
+	    key: 'binObjectBuffers',
+	    value: function binObjectBuffers(camera, object) {
+	      var _this = this;
+
+	      var program = object.material.getProgram();
+	      var geometry = object.geometry;
+
+	      // set the uniform matrices inside each vertex shader
+	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
+	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
+
+	      var gl = this.gl;
+
+	      Object.keys(geometry.attributes).forEach(function (key) {
+	        var attribute = geometry.attributes[key];
+	        var programAttribute = _this.getAttribute(program, key);
+	        if (programAttribute === undefined) {
+	          return;
+	        }
+
+	        gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
+	        gl.vertexAttribPointer(programAttribute, attribute.itemSize, gl.FLOAT, false, // normalized
+	        0, // stride
+	        0); // offset
+	      });
+	    }
+	  }, {
+	    key: 'getAttribute',
+	    value: function getAttribute(object, key) {
+	      var attribute = object.attributes[key];
+	      if (attribute === undefined) {
+	        (0, _Logger.log)(_Logger.COULD_NOT_FIND_ATTRIBUTE + ' ' + key);
+	      }
+	      return attribute;
+	    }
+	  }, {
+	    key: 'setMaterial',
+	    value: function setMaterial(material) {
+	      var _this2 = this;
+
+	      var gl = this.gl;
+	      var program = material.getProgram();
+
+	      gl.useProgram(program);
+
+	      Object.keys(program.attributes).forEach(function (key) {
+	        var attribute = _this2.getAttribute(program, key);
+	        if (attribute === undefined) {
+	          return;
+	        }
+	        gl.enableVertexAttribArray(attribute);
+	      });
+	    }
+	  }]);
+
+	  return Renderer;
+	}();
+
+	exports.default = Renderer;
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -6931,7 +7042,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 16 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6942,9 +7053,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _glMatrix = __webpack_require__(5);
+	var _Matrix = __webpack_require__(4);
 
-	var _Math = __webpack_require__(17);
+	var _Matrix2 = _interopRequireDefault(_Matrix);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6955,21 +7068,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _classCallCheck(this, Object3D);
 
 	    this.id = currentId++;
-	    this.matrix = _glMatrix.mat4.create();
+	    this.matrix = new _Matrix2.default();
 
 	    this.geometry = geometry;
 	    this.material = material;
 	  }
 
 	  _createClass(Object3D, [{
-	    key: 'rotateY',
-	    value: function rotateY(angle) {
-	      _glMatrix.mat4.rotateY(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
-	    }
-	  }, {
 	    key: 'rotateX',
 	    value: function rotateX(angle) {
-	      _glMatrix.mat4.rotateX(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
+	      this.matrix.rotateX(angle);
+	    }
+	  }, {
+	    key: 'rotateY',
+	    value: function rotateY(angle) {
+	      this.matrix.rotateY(angle);
+	    }
+	  }, {
+	    key: 'rotateZ',
+	    value: function rotateZ(angle) {
+	      this.matrix.rotateZ(angle);
+	    }
+	  }, {
+	    key: 'getMatrix',
+	    value: function getMatrix() {
+	      return this.matrix.getMatrix();
 	    }
 	  }, {
 	    key: 'dispose',
@@ -6984,18 +7107,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Object3D;
 
 /***/ },
-/* 17 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var DEG_TO_RAD = exports.DEG_TO_RAD = Math.PI / 180;
-
-/***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7035,7 +7147,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Geometry;
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7046,7 +7158,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _Logger = __webpack_require__(15);
+	var _Logger = __webpack_require__(18);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -7123,7 +7235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Material;
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7150,12 +7262,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: "render",
-	    value: function render(renderer) {
+	    value: function render(renderer, camera) {
 	      renderer.beginRender();
 
 	      var objects = this.sceneObjects;
 	      for (var i = 0, length = objects.length; i < length; i++) {
-	        renderer.render(objects[i]);
+	        renderer.render(camera, objects[i]);
 	      }
 	    }
 	  }]);
@@ -7166,12 +7278,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Scene;
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./coloredFragmentShader.glsl": 22,
-		"./coloredVertexShader.glsl": 23
+		"./coloredFragmentShader.glsl": 24,
+		"./coloredVertexShader.glsl": 25
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -7184,23 +7296,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 21;
+	webpackContext.id = 23;
 
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports) {
 
 	module.exports = "precision mediump float;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  gl_FragColor = vec4(vVertexColor, 1.0);\n}\n"
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports) {
 
 	module.exports = "uniform mat4 uMVMatrix;\nuniform mat4 uPMatrix;\n\nattribute vec3 aVertexPosition;\nattribute vec3 aVertexColor;\n\nvarying vec3 vVertexColor;\n\n\nvoid main(void) {\n  vVertexColor = aVertexColor;\n\n  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n}\n"
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports) {
 
 	'use strict';
