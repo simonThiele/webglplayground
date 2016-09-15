@@ -9,6 +9,17 @@ export default class Matrix4 {
     this.matrix = mat4.create();
   }
 
+  updateMatrix(position, rotation, scale) {
+    // reset matrix
+    mat4.identity(this.matrix);
+
+    mat4.translate(this.matrix, this.matrix, position.getVector());
+    this.rotateX(rotation.getX());
+    this.rotateY(rotation.getY());
+    this.rotateZ(rotation.getZ());
+    mat4.scale(this.matrix, this.matrix, scale.getVector());
+  }
+
   rotateX(angle) {
     mat4.rotateX(this.matrix, this.matrix, angle * DEG_TO_RAD);
   }

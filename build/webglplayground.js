@@ -289,6 +289,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(Matrix4, [{
+	    key: 'updateMatrix',
+	    value: function updateMatrix(position, rotation, scale) {
+	      // reset matrix
+	      _glMatrix.mat4.identity(this.matrix);
+
+	      _glMatrix.mat4.translate(this.matrix, this.matrix, position.getVector());
+	      this.rotateX(rotation.getX());
+	      this.rotateY(rotation.getY());
+	      this.rotateZ(rotation.getZ());
+	      _glMatrix.mat4.scale(this.matrix, this.matrix, scale.getVector());
+	    }
+	  }, {
 	    key: 'rotateX',
 	    value: function rotateX(angle) {
 	      _glMatrix.mat4.rotateX(this.matrix, this.matrix, angle * _Math.DEG_TO_RAD);
@@ -6881,15 +6893,45 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Vector3 = function () {
 	  function Vector3() {
+	    var x = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+	    var y = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+	    var z = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
 	    _classCallCheck(this, Vector3);
 
 	    this.vector = _glMatrix.vec3.create();
+	    this.set(x, y, z);
 	  }
 
 	  _createClass(Vector3, [{
 	    key: 'set',
 	    value: function set(x, y, z) {
 	      _glMatrix.vec3.set(this.vector, x, y, z);
+	    }
+	  }, {
+	    key: 'add',
+	    value: function add(x, y, z) {
+	      _glMatrix.vec3.set(this.vector, x + this.vector[0], y + this.vector[1], z + this.vector[2]);
+	    }
+	  }, {
+	    key: 'sub',
+	    value: function sub(x, y, z) {
+	      _glMatrix.vec3.set(this.vector, -x + this.vector[0], -y + this.vector[1], -z + this.vector[2]);
+	    }
+	  }, {
+	    key: 'getX',
+	    value: function getX() {
+	      return this.vector[0];
+	    }
+	  }, {
+	    key: 'getY',
+	    value: function getY() {
+	      return this.vector[1];
+	    }
+	  }, {
+	    key: 'getZ',
+	    value: function getZ() {
+	      return this.vector[2];
 	    }
 	  }, {
 	    key: 'getVector',
@@ -7111,6 +7153,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Matrix2 = _interopRequireDefault(_Matrix);
 
+	var _Vector = __webpack_require__(16);
+
+	var _Vector2 = _interopRequireDefault(_Vector);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -7124,29 +7170,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.id = currentId++;
 	    this.matrix = new _Matrix2.default();
 
+	    this.position = new _Vector2.default();
+	    this.rotation = new _Vector2.default();
+	    this.scale = new _Vector2.default(1, 1, 1);
+
+	    // use dirty flag pattern to avoid multiple updates/frame
+	    this.matrixNeedsUpdate = false;
+
 	    this.geometry = geometry;
 	    this.material = material;
 	  }
 
 	  _createClass(Object3D, [{
-	    key: 'rotateX',
-	    value: function rotateX(angle) {
-	      this.matrix.rotateX(angle);
-	    }
-	  }, {
-	    key: 'rotateY',
-	    value: function rotateY(angle) {
-	      this.matrix.rotateY(angle);
-	    }
-	  }, {
-	    key: 'rotateZ',
-	    value: function rotateZ(angle) {
-	      this.matrix.rotateZ(angle);
-	    }
-	  }, {
-	    key: 'translate',
-	    value: function translate(x, y, z) {
-	      this.matrix.translate(x, y, z);
+	    key: 'updateMatrix',
+	    value: function updateMatrix() {
+	      this.matrix.updateMatrix(this.position, this.rotation, this.scale);
 	    }
 	  }, {
 	    key: 'getMatrix',
@@ -7326,6 +7364,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var objects = this.sceneObjects;
 	      for (var i = 0, length = objects.length; i < length; i++) {
+	        var object = objects[i];
+
+	        // use dirty flag to update matrix only once
+	        if (object.matrixNeedsUpdate) {
+	          object.updateMatrix();
+	        }
+
 	        renderer.render(camera, objects[i]);
 	      }
 	    }

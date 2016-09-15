@@ -6,7 +6,7 @@
         content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="google" content="notranslate">
   <title>
-    doubleRect
+    transformation
   </title>
 </head>
 <body>
@@ -27,23 +27,22 @@
       webglplayground.Utils.createColoredMaterial(webgl)
     );
 
-    const rect2 = webgl.createObject3D(
-      webglplayground.Utils.createRect(webgl),
-      webglplayground.Utils.createColoredMaterial(webgl)
-    );
-
     scene.add(rect);
-    scene.add(rect2);
 
+    let t = 0;
     const callback = () => {
-      rect.rotateX(1);
-      rect.rotateY(1);
+      const scale = Math.abs(Math.sin(t));
 
-      rect2.rotateY(1);
+      rect.rotation.add(0, 1, 0);
+      rect.matrixNeedsUpdate = true;
+      rect.scale.set(scale, scale, scale);
+      rect.position.set(0, Math.sin(t), 0);
 
       scene.render(renderer, camera);
 
       requestAnimationFrame(callback);
+
+      t += 0.01;
     }
 
     callback();

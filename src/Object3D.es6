@@ -1,4 +1,5 @@
 import Matrix4 from './math/Matrix4';
+import Vector3 from './math/Vector3';
 
 let currentId = 0;
 
@@ -8,24 +9,19 @@ export default class Object3D {
     this.id = currentId++;
     this.matrix = new Matrix4();
 
+    this.position = new Vector3();
+    this.rotation = new Vector3();
+    this.scale = new Vector3(1, 1, 1);
+
+    // use dirty flag pattern to avoid multiple updates/frame
+    this.matrixNeedsUpdate = false;
+
     this.geometry = geometry;
     this.material = material;
   }
 
-  rotateX(angle) {
-    this.matrix.rotateX(angle);
-  }
-
-  rotateY(angle) {
-    this.matrix.rotateY(angle);
-  }
-
-  rotateZ(angle) {
-    this.matrix.rotateZ(angle);
-  }
-
-  translate(x, y, z) {
-    this.matrix.translate(x, y, z);
+  updateMatrix() {
+    this.matrix.updateMatrix(this.position, this.rotation, this.scale);
   }
 
   getMatrix() {
