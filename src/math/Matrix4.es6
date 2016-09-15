@@ -1,6 +1,7 @@
 import {mat4} from 'gl-matrix';
 
 import {DEG_TO_RAD} from './Math';
+import Vector3 from './Vector3';
 
 export default class Matrix4 {
 
@@ -18,6 +19,13 @@ export default class Matrix4 {
 
   rotateZ(angle) {
     mat4.rotateZ(this.matrix, this.matrix, angle * DEG_TO_RAD);
+  }
+
+  translate(x, y, z) {
+    const translationVector = new Vector3();
+    translationVector.set(x, y, z);
+
+    mat4.translate(this.matrix, this.matrix, translationVector.getVector());
   }
 
   getMatrix() {

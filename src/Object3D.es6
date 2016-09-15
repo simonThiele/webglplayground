@@ -24,6 +24,10 @@ export default class Object3D {
     this.matrix.rotateZ(angle);
   }
 
+  translate(x, y, z) {
+    this.matrix.translate(x, y, z);
+  }
+
   getMatrix() {
     return this.matrix.getMatrix();
   }
