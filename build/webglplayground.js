@@ -153,9 +153,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function getWebGLCanvasContext(canvas) {
 	      var names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl'];
 	      var context = null;
-	      for (var ii = 0; ii < names.length; ++ii) {
+	      for (var i = 0; i < names.length; ++i) {
 	        try {
-	          context = canvas.getContext(names[ii]);
+	          context = canvas.getContext(names[i]);
 	        } catch (e) {
 	          continue;
 	        }
@@ -7053,23 +7053,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var gl = this.gl;
 
 	      this.setMaterial(object.material);
-	      this.binObjectBuffers(camera, object);
+	      this.bindObjectBuffers(camera, object);
 
 	      gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
 	    }
 	  }, {
-	    key: 'binObjectBuffers',
-	    value: function binObjectBuffers(camera, object) {
+	    key: 'bindObjectBuffers',
+	    value: function bindObjectBuffers(camera, object) {
 	      var _this = this;
 
-	      var program = object.material.getProgram();
+	      var gl = this.gl;
 	      var geometry = object.geometry;
+	      var program = object.material.getProgram();
 
 	      // set the uniform matrices inside each vertex shader
-	      this.gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
-	      this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
-
-	      var gl = this.gl;
+	      gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
+	      gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
 
 	      Object.keys(geometry.attributes).forEach(function (key) {
 	        var attribute = geometry.attributes[key];

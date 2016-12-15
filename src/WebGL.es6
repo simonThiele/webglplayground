@@ -28,9 +28,9 @@ export default class WebGL {
   getWebGLCanvasContext(canvas) {
     const names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl'];
     let context = null;
-    for (let ii = 0; ii < names.length; ++ii) {
+    for (let i = 0; i < names.length; ++i) {
       try {
-        context = canvas.getContext(names[ii]);
+        context = canvas.getContext(names[i]);
       } catch (e) {
         continue;
       }

@@ -28,20 +28,19 @@ export default class Renderer {
     const gl = this.gl;
 
     this.setMaterial(object.material);
-    this.binObjectBuffers(camera, object);
+    this.bindObjectBuffers(camera, object);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
   }
 
-  binObjectBuffers(camera, object) {
-    const program = object.material.getProgram();
+  bindObjectBuffers(camera, object) {
+    const gl = this.gl;
     const geometry = object.geometry;
+    const program = object.material.getProgram();
 
     // set the uniform matrices inside each vertex shader
-    this.gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
-    this.gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
-
-    const gl = this.gl;
+    gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
+    gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
 
     Object.keys(geometry.attributes).forEach(key => {
       const attribute = geometry.attributes[key];
