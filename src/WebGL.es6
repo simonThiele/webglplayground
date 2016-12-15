@@ -1,3 +1,4 @@
+import PerspectiveCamera from './PerspectiveCamera';
 import Attribute from './Attribute';
 import Renderer from './Renderer';
 import Object3D from './Object3D';
@@ -27,9 +28,9 @@ export default class WebGL {
   getWebGLCanvasContext(canvas) {
     const names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl'];
     let context = null;
-    for (let ii = 0; ii < names.length; ++ii) {
+    for (let i = 0; i < names.length; ++i) {
       try {
-        context = canvas.getContext(names[ii]);
+        context = canvas.getContext(names[i]);
       } catch (e) {
         continue;
       }
@@ -62,6 +63,10 @@ export default class WebGL {
 
   createScene() {
     return new Scene();
+  }
+
+  createPerspectiveCamera(width, height) {
+    return new PerspectiveCamera(width, height);
   }
 
   getShader(shaderFileName) {

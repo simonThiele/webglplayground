@@ -8,12 +8,19 @@ export default class Scene {
     this.sceneObjects.push(object);
   }
 
-  render(renderer) {
+  render(renderer, camera) {
     renderer.beginRender();
 
     const objects = this.sceneObjects;
     for (let i = 0, length = objects.length; i < length; i++) {
-      renderer.render(objects[i]);
+      const object = objects[i];
+
+      // use dirty flag to update matrix only once
+      if (object.matrixNeedsUpdate) {
+        object.updateMatrix();
+      }
+
+      renderer.render(camera, objects[i]);
     }
   }
 }

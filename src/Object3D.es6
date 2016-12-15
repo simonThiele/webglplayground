@@ -1,22 +1,31 @@
-import {mat4} from 'gl-matrix';
+import Matrix4 from './math/Matrix4';
+import Vector3 from './math/Vector3';
 
-import {DEG_TO_RAD} from './Math';
+let currentId = 0;
 
 export default class Object3D {
 
   constructor(geometry, material) {
-    this.matrix = mat4.create();
+    this.id = currentId++;
+    this.matrix = new Matrix4();
+
+    this.position = new Vector3();
+    this.rotation = new Vector3();
+    this.scale = new Vector3(1, 1, 1);
+
+    // use dirty flag pattern to avoid multiple updates/frame
+    this.matrixNeedsUpdate = false;
 
     this.geometry = geometry;
     this.material = material;
   }
 
-  rotateY(angle) {
-    mat4.rotateY(this.matrix, this.matrix, angle * DEG_TO_RAD);
+  updateMatrix() {
+    this.matrix.updateMatrix(this.position, this.rotation, this.scale);
   }
 
-  rotateX(angle) {
-    mat4.rotateX(this.matrix, this.matrix, angle * DEG_TO_RAD);
+  getMatrix() {
+    return this.matrix.getMatrix();
   }
 
   dispose() {
