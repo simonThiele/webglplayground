@@ -60,7 +60,7 @@ export default class Renderer {
 
   getAttribute(object, key) {
     const attribute = object.attributes[key];
-    if (attribute === undefined) {
+    if (attribute === undefined && key !== 'index') {
       log(`${COULD_NOT_FIND_ATTRIBUTE} ${key}`);
     }
     return attribute;
