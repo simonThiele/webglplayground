@@ -3,6 +3,11 @@ export default class Attribute {
   constructor(gl, id, data, itemSize) {
     this.id = id;
     this.gl = gl;
+    this.arrayType = gl.ARRAY_BUFFER;
+
+    if (id === 'index') {
+      this.arrayType = gl.ELEMENT_ARRAY_BUFFER;
+    }
 
     this.update(data, itemSize);
   }
@@ -11,19 +16,22 @@ export default class Attribute {
     this.itemSize = itemSize;
     this.numItems = data.length / itemSize;
 
-    if (!(data instanceof Float32Array)) {
+    if (this.id === 'index') {
+      if (!(data instanceof Uint16Array)) {
+        data = new Uint16Array(data);
+      }
+    } else if (!(data instanceof Float32Array)) {
       data = new Float32Array(data);
     }
     this.buffer = this.createBuffer(this.gl, data);
+    this.buffer.numItems = data.length;
   }
 
   createBuffer(gl, data) {
     const vertexPositionBuffer = gl.createBuffer();
-    vertexPositionBuffer.itemSize = this.itemSize;
-    vertexPositionBuffer.numItems = 4;
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    gl.bindBuffer(this.arrayType, vertexPositionBuffer);
+    gl.bufferData(this.arrayType, data, gl.STATIC_DRAW);
 
     return vertexPositionBuffer;
   }

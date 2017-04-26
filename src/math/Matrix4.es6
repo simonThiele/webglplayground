@@ -39,6 +39,10 @@ export default class Matrix4 {
     mat4.translate(this.matrix, this.matrix, translationVector.getVector());
   }
 
+  compose(/* position, rotation, scale */) {
+    // TODO: implement
+  }
+
   getMatrix() {
     return this.matrix;
   }

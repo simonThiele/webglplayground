@@ -30,7 +30,8 @@ export default class Renderer {
     this.setMaterial(object.material);
     this.bindObjectBuffers(camera, object);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, object.geometry.attributes.position.numItems);
+    const indexBuffer = object.geometry.attributes.index.buffer;
+    gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, indexBuffer);
   }
 
   bindObjectBuffers(camera, object) {
@@ -45,17 +46,15 @@ export default class Renderer {
     Object.keys(geometry.attributes).forEach(key => {
       const attribute = geometry.attributes[key];
       const programAttribute = this.getAttribute(program, key);
-      if (programAttribute === undefined) {
-        return;
+      if (programAttribute !== undefined) {
+        gl.bindBuffer(attribute.arrayType, attribute.buffer);
+        gl.vertexAttribPointer(programAttribute,
+          attribute.itemSize,
+          gl.FLOAT,
+          false, // normalized
+          0,     // stride
+          0);    // offset
       }
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
-      gl.vertexAttribPointer(programAttribute,
-                             attribute.itemSize,
-                             gl.FLOAT,
-                             false, // normalized
-                             0,     // stride
-                             0);    // offset
     });
   }
 
