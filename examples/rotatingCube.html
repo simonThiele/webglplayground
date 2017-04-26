@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head profile="http://www.w3.org/2005/10/profile">
+  <meta charset="UTF-8"
+        name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="google" content="notranslate">
+  <title>
+    rotatingCube
+  </title>
+</head>
+<body>
+  <canvas id="canvas" width="400" height="400"></canvas>
+
+  <script src="../build/webglplayground.js"></script>
+  <script>
+    var canvas = document.getElementById("canvas");
+
+    var webgl = new webglplayground.WebGL(canvas);
+
+    const scene = webgl.createScene();
+    const renderer = webgl.createRenderer(canvas.width, canvas.height);
+    const camera = webgl.createPerspectiveCamera(canvas.width, canvas.height);
+
+    const cube = webgl.createObject3D(
+      webglplayground.Utils.createCube(webgl),
+      webglplayground.Utils.createColoredMaterial(webgl)
+    );
+
+    scene.add(cube);
+
+    let t = 0;
+    const callback = () => {
+      scene.render(renderer, camera);
+
+      cube.rotation.set(t, -t, t);
+      cube.matrixNeedsUpdate = true;
+
+      requestAnimationFrame(callback);
+
+      t += 0.5;
+    }
+
+    callback();
+  </script>
+</body>
+</html>
