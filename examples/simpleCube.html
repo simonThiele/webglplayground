@@ -22,8 +22,8 @@
     const renderer = webgl.createRenderer(canvas.width, canvas.height);
 
     const camera = webgl.createPerspectiveCamera(canvas.width, canvas.height);
-    camera.position.set(-0.5, 1, 0);
-    // camera.rotation.set(45, 0, 0);
+    camera.position.set(0, 1, -1);
+    camera.rotation.set(45, 0, 0);
     camera.matrixNeedsUpdate = true;
 
     const cube = webgl.createObject3D(

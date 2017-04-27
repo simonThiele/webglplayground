@@ -40,7 +40,7 @@ export default class Renderer {
     const program = object.material.getProgram();
 
     // set the uniform matrices inside each vertex shader
-    gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getProjectionMatrix());
+    gl.uniformMatrix4fv(program.pMatrixUniform, false, camera.getViewProjectionMatrix());
     gl.uniformMatrix4fv(program.mvMatrixUniform, false, object.getMatrix());
 
     Object.keys(geometry.attributes).forEach(key => {
