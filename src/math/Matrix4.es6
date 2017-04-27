@@ -49,5 +49,15 @@ export default class Matrix4 {
 }
 
 export function perspective(matrix, width, height) {
-  mat4.perspective(matrix, 45, width / height, 0.1, 100.0);
+  mat4.perspective(matrix, 45, width / height, 0.1, 1000.0);
+}
+
+export function invert(out, m) {
+  return mat4.invert(out, m);
+}
+
+export function multiply(m1, m2) {
+  const out = mat4.create();
+  mat4.multiply(out, m1, m2);
+  return out;
 }

@@ -43,3 +43,21 @@ export default class Vector3 {
     return this.vector;
   }
 }
+
+export function cross(v1, v2) {
+  const out = {};
+  vec3.cross(out, v1, v2);
+  return out;
+}
+
+export function normalize(v) {
+  const out = {};
+  vec3.normalize(out, v);
+  return out;
+}
+
+export function sub(v1, v2) {
+  const out = {};
+  vec3.subtract(out, v1, v2);
+  return out;
+}

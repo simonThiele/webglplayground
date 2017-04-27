@@ -11,6 +11,10 @@ export default class Scene {
   render(renderer, camera) {
     renderer.beginRender();
 
+    if (camera.matrixNeedsUpdate) {
+      camera.updateMatrix();
+    }
+
     const objects = this.sceneObjects;
     for (let i = 0, length = objects.length; i < length; i++) {
       const object = objects[i];
